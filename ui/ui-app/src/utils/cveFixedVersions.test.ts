@@ -43,17 +43,18 @@ function packageName(lockfileKey: string): string | null {
 }
 
 describe("CVE-fixed dependency versions", () => {
-    it("pins zod >= 4.6.6 and body-parser >= 2.4.0 in every UI lockfile", () => {
+    it("pins zod >= 4.6.6, body-parser >= 2.4.0, and node-forge >= 1.4.1 in every UI lockfile", () => {
         const versions: Record<string, string[]> = {
             zod: [],
-            "body-parser": []
+            "body-parser": [],
+            "node-forge": []
         };
 
         for (const lockfilePath of LOCKFILES) {
             const lock = JSON.parse(readFileSync(lockfilePath, "utf8")) as Lockfile;
             for (const [key, pkg] of Object.entries(lock.packages ?? {})) {
                 const name = packageName(key);
-                if (name === "zod" || name === "body-parser") {
+                if (name === "zod" || name === "body-parser" || name === "node-forge") {
                     versions[name].push(pkg.version ?? "?");
                 }
             }
@@ -61,12 +62,16 @@ describe("CVE-fixed dependency versions", () => {
 
         expect(versions["zod"].length).toBeGreaterThan(0);
         expect(versions["body-parser"].length).toBeGreaterThan(0);
+        expect(versions["node-forge"].length).toBeGreaterThan(0);
 
         for (const version of versions["zod"]) {
             expect(gte(parseVersion(version), [4, 6, 6]), `zod ${version} must be >= 4.6.6`).toBe(true);
         }
         for (const version of versions["body-parser"]) {
             expect(gte(parseVersion(version), [2, 4, 0]), `body-parser ${version} must be >= 2.4.0`).toBe(true);
+        }
+        for (const version of versions["node-forge"]) {
+            expect(gte(parseVersion(version), [1, 4, 1]), `node-forge ${version} must be >= 1.4.1`).toBe(true);
         }
     });
 });
