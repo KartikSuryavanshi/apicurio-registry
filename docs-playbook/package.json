@@ -21,5 +21,8 @@
     "@antora/site-generator-default": "3.1.10",
     "antora-site-generator-lunr": "0.6.1",
     "antora-lunr": "0.8.0"
+  },
+  "overrides": {
+    "isomorphic-git": "1.38.6"
   }
 }
