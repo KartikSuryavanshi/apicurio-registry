@@ -65,61 +65,63 @@ class PlainTextRenderer extends marked.Renderer {
     delimiter: string = " ";
     showImageText: boolean = false;
 
-    public code(code, lang, escaped): string {
+    public code(): string {
         return this.delimiter + "<code>...</code>" + this.delimiter;
     }
-    public blockquote(quote): string {
-        return "\t" + quote + this.delimiter;
+    public blockquote({ tokens }: marked.Tokens.Blockquote): string {
+        return "\t" + this.parser.parse(tokens) + this.delimiter;
     }
-    public html(html): string {
-        return escape(html);
+    public html({ text }: marked.Tokens.HTML | marked.Tokens.Tag): string {
+        return escape(text);
     }
-    public heading(text, level, raw): string {
-        return text;
+    public heading({ tokens }: marked.Tokens.Heading): string {
+        return this.parser.parseInline(tokens);
     }
     public hr(): string {
         return this.delimiter + this.delimiter;
     }
-    public list(body, ordered): string {
-        return body;
+    public list({ items }: marked.Tokens.List): string {
+        return items.map((item) => this.listitem(item)).join("");
     }
-    public listitem(text): string {
-        return "\t" + text + this.delimiter;
+    public listitem({ tokens }: marked.Tokens.ListItem): string {
+        return "\t" + this.parser.parse(tokens) + this.delimiter;
     }
-    public paragraph(text): string {
-        return this.delimiter + text + this.delimiter;
+    public paragraph({ tokens }: marked.Tokens.Paragraph): string {
+        return this.delimiter + this.parser.parseInline(tokens) + this.delimiter;
     }
-    public table(header, body): string {
-        return  this.delimiter + header + this.delimiter + body + this.delimiter;
+    public table({ header, rows }: marked.Tokens.Table): string {
+        const headerText = header.map((cell) => this.tablecell(cell)).join("");
+        const rowsText = rows.map((row) => row.map((cell) => this.tablecell(cell)).join("")).join("");
+        return this.delimiter + headerText + this.delimiter + rowsText + this.delimiter;
     }
-    public tablerow(content): string {
-        return content + this.delimiter;
+    public tablerow({ text }: marked.Tokens.TableRow): string {
+        return text + this.delimiter;
     }
-    public tablecell(content, flags): string {
-        return content + "\t";
+    public tablecell({ tokens }: marked.Tokens.TableCell): string {
+        return this.parser.parseInline(tokens) + "\t";
     }
-    public strong(text): string {
-        return text;
+    public strong({ tokens }: marked.Tokens.Strong): string {
+        return this.parser.parseInline(tokens);
     }
-    public em(text): string {
-        return text;
+    public em({ tokens }: marked.Tokens.Em): string {
+        return this.parser.parseInline(tokens);
     }
-    public codespan(text): string {
+    public codespan({ text }: marked.Tokens.Codespan): string {
         return text;
     }
     public br(): string {
         return this.delimiter + this.delimiter;
     }
-    public del(text): string {
-        return text;
+    public del({ tokens }: marked.Tokens.Del): string {
+        return this.parser.parseInline(tokens);
     }
-    public link(href, title, text): string {
-        return text;
+    public link({ tokens }: marked.Tokens.Link): string {
+        return this.parser.parseInline(tokens);
     }
-    public image(href, title, text): string {
+    public image({ text }: marked.Tokens.Image): string {
         return this.showImageText ? text : "";
     }
-    public text(text): string {
+    public text({ text }: marked.Tokens.Text | marked.Tokens.Escape): string {
         return text;
     }
 }

@@ -261,7 +261,7 @@ export class AaiEditorComponent extends AbstractApiEditorComponent implements On
             }
             this.validateModel();
             let sourceJs: any = Library.writeNode(this._document);
-            this.sourceValue = YAML.safeDump(sourceJs, {
+            this.sourceValue = YAML.dump(sourceJs, {
                 indent: 4,
                 lineWidth: 110,
                 noRefs: true
